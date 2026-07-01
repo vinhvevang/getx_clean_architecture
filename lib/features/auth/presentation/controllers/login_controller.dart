@@ -1,4 +1,4 @@
-
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:getx_clean_archi/features/auth/domain/usecases/login.dart';
 import 'package:getx_clean_archi/features/auth/presentation/controllers/nav_controller.dart';
@@ -9,38 +9,55 @@ class LoginController extends GetxController {
   final Login loginUseCase;
   LoginController(this.loginUseCase);
 
-  final taxError      = Rxn<String>();
-  final usernameError = Rxn<String>();
-  final passwordError = Rxn<String>();
+  final tax = TextEditingController();
+  final username = TextEditingController();
+  final password = TextEditingController();
 
-  void submit(String tax, String username, String password) {
-    taxError.value = usernameError.value = passwordError.value = null;
+  final isLoading = false.obs;
+  final error = Rxn<String>();
 
-    if (tax.isEmpty) {
-      taxError.value = 'Không được để trống';
-    } else if (int.tryParse(tax) == null) {
-      taxError.value = 'Phải là số nguyên';
+  Future<void> submit() async {
+    error.value = null;
+
+    final taxNumber = int.tryParse(tax.text);
+
+   
+    if (taxNumber == null) {
+      error.value = 'Mã số thuế không hợp lệ';
+      return;
     }
-    if (username.isEmpty) usernameError.value = 'Không được để trống';
-    if (password.isEmpty) passwordError.value = 'Không được để trống';
 
-    if (taxError.value != null ||
-        usernameError.value != null ||
-        passwordError.value != null) return;
+    isLoading.value = true;
 
-    final ok = loginUseCase(int.parse(tax), username, password);
-    if (ok) {
+   
+    await Future.delayed(const Duration(seconds: 1));
+
+    final isAuth = loginUseCase(
+      taxNumber,
+      username.text,
+      password.text,
+    );
+
+    isLoading.value = false;
+
+    if (isAuth) {
       Get.off(() => const MainPage());
     } else {
-      taxError.value      = 'Sai thông tin đăng nhập';
-      usernameError.value = 'Sai thông tin đăng nhập';
-      passwordError.value = 'Sai thông tin đăng nhập';
+      error.value = 'Sai thông tin đăng nhập';
     }
   }
 
   void logout() {
-    taxError.value = usernameError.value = passwordError.value = null;
+    error.value = null;
     Get.find<NavController>().reset();
     Get.offAll(() => LoginPage());
+  }
+
+  @override
+  void onClose() {
+    tax.dispose();
+    username.dispose();
+    password.dispose();
+    super.onClose();
   }
 }
