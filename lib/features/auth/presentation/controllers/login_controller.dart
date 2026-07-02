@@ -12,43 +12,43 @@ class LoginController extends GetxController {
   final tax = TextEditingController();
   final username = TextEditingController();
   final password = TextEditingController();
-
+  final formKey = GlobalKey<FormState>();
   final isLoading = false.obs;
-  final error = Rxn<String>();
+  final isOScured = true.obs;
 
   Future<void> submit() async {
-    error.value = null;
-
     final taxNumber = int.tryParse(tax.text);
 
-   
     if (taxNumber == null) {
-      error.value = 'Mã số thuế không hợp lệ';
       return;
     }
 
     isLoading.value = true;
 
-   
     await Future.delayed(const Duration(seconds: 1));
 
-    final isAuth = loginUseCase(
-      taxNumber,
-      username.text,
-      password.text,
-    );
+    final isAuth = loginUseCase(taxNumber, username.text, password.text);
 
     isLoading.value = false;
 
     if (isAuth) {
       Get.off(() => const MainPage());
-    } else {
-      error.value = 'Sai thông tin đăng nhập';
+    } else {}
+  }
+
+  void checkVisibility() {
+    isOScured.value = !isOScured.value;
+  }
+
+  void handleIsLoading() {
+    if (isLoading.value) return;
+
+    if (formKey.currentState!.validate()) {
+      submit();
     }
   }
 
   void logout() {
-    error.value = null;
     Get.find<NavController>().reset();
     Get.offAll(() => LoginPage());
   }

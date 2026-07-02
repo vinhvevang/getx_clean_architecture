@@ -3,13 +3,11 @@ import 'package:get/get.dart';
 import 'package:getx_clean_archi/features/product/domain/entities/product.dart';
 import 'package:getx_clean_archi/features/product/presentation/controllers/home_controller.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends GetView<HomeController> {
   HomePage({super.key});
 
   void _showFilterDialog() {
-    final ctrl = Get.find<HomeController>();
-    final minCtrl = TextEditingController();
-    final maxCtrl = TextEditingController();
+   
 
     Get.dialog(
       AlertDialog(
@@ -18,12 +16,12 @@ class HomePage extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             TextFormField(
-              controller: minCtrl,
+              controller: controller.mincontroller,
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(label: Text('Giá tối thiểu')),
             ),
             TextFormField(
-              controller: maxCtrl,
+              controller: controller.maxcontroller,
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(label: Text('Giá tối đa')),
             ),
@@ -32,16 +30,16 @@ class HomePage extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () {
-              ctrl.filter();
+              controller.filter();
               Get.back();
             },
             child: const Text('Xóa lọc'),
           ),
           TextButton(
             onPressed: () {
-              ctrl.filter(
-                minPrice: int.tryParse(minCtrl.text),
-                maxPrice: int.tryParse(maxCtrl.text),
+              controller.filter(
+                minPrice: int.tryParse(controller.mincontroller.text),
+                maxPrice: int.tryParse(controller.maxcontroller.text),
               );
               Get.back();
             },
@@ -54,7 +52,6 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ctrl = Get.find<HomeController>();
 
     return Scaffold(
       body: Column(
@@ -68,8 +65,8 @@ class HomePage extends StatelessWidget {
                 children: [
                   Expanded(
                     child: TextFormField(
-                      controller: ctrl.findName,
-                      onChanged: ctrl.find,
+                      controller: controller.findName,
+                      onChanged: controller.find,
                       decoration: const InputDecoration(
                         label: Text('Nhap ten sp ...'),
                         floatingLabelBehavior: FloatingLabelBehavior.never,
@@ -96,10 +93,10 @@ class HomePage extends StatelessWidget {
                     crossAxisSpacing: 3,
                     crossAxisCount: 2,
                   ),
-                  itemCount: ctrl.filteredProducts.length,
+                  itemCount: controller.filteredProducts.length,
                   itemBuilder: (context, i) {
-                    final actualIndex = ctrl.products.indexOf(
-                      ctrl.filteredProducts[i],
+                    final actualIndex = controller.products.indexOf(
+                      controller.filteredProducts[i],
                     );
 
                     return Container(
@@ -109,14 +106,14 @@ class HomePage extends StatelessWidget {
                       child: Column(
                         children: [
                           ListTile(
-                            title: Text(ctrl.filteredProducts[i].name),
-                            subtitle: Text('${ctrl.filteredProducts[i].price}'),
-                            trailing: Text('${ctrl.filteredProducts[i].quan}'),
+                            title: Text(controller.filteredProducts[i].name),
+                            subtitle: Text('${controller.filteredProducts[i].price}'),
+                            trailing: Text('${controller.filteredProducts[i].quan}'),
                           ),
 
                           // Xóa
                           IconButton(
-                            onPressed: () => ctrl.remove(actualIndex),
+                            onPressed: () => controller.remove(actualIndex),
                             icon: const Icon(Icons.delete),
                           ),
 
@@ -128,31 +125,31 @@ class HomePage extends StatelessWidget {
                                   title: const Text('Sua san pham'),
                                   actions: [
                                     TextFormField(
-                                      controller: ctrl.editName,
+                                      controller: controller.editName,
                                       decoration: const InputDecoration(
                                         label: Text('Ten san pham'),
                                       ),
                                     ),
                                     TextFormField(
-                                      controller: ctrl.editPrice,
+                                      controller: controller.editPrice,
                                       decoration: const InputDecoration(
                                         label: Text('gia'),
                                       ),
                                     ),
                                     TextFormField(
-                                      controller: ctrl.editQuan,
+                                      controller: controller.editQuan,
                                       decoration: const InputDecoration(
                                         label: Text('so luong'),
                                       ),
                                     ),
                                     TextButton(
                                       onPressed: () {
-                                        ctrl.edit(
+                                        controller.edit(
                                           Product(
-                                            ctrl.editName.text,
-                                            int.tryParse(ctrl.editPrice.text) ??
+                                            controller.editName.text,
+                                            int.tryParse(controller.editPrice.text) ??
                                                 0,
-                                            int.tryParse(ctrl.editQuan.text) ??
+                                            int.tryParse(controller.editQuan.text) ??
                                                 0,
                                           ),
                                           actualIndex,
@@ -182,28 +179,28 @@ class HomePage extends StatelessWidget {
                       title: const Text('nhap thong tin san pham'),
                       actions: [
                         TextFormField(
-                          controller: ctrl.name,
+                          controller: controller.name,
                           decoration: const InputDecoration(
                             label: Text('Ten san pham'),
                           ),
                         ),
                         TextFormField(
-                          controller: ctrl.price,
+                          controller: controller.price,
                           decoration: const InputDecoration(label: Text('gia')),
                         ),
                         TextFormField(
-                          controller: ctrl.quan,
+                          controller: controller.quan,
                           decoration: const InputDecoration(
                             label: Text('so luong'),
                           ),
                         ),
                         TextButton(
                           onPressed: () {
-                            ctrl.add(
+                            controller.add(
                               Product(
-                                ctrl.name.text,
-                                int.tryParse(ctrl.price.text) ?? 0,
-                                int.tryParse(ctrl.quan.text) ?? 0,
+                                controller.name.text,
+                                int.tryParse(controller.price.text) ?? 0,
+                                int.tryParse(controller.quan.text) ?? 0,
                               ),
                             );
                             Get.back();

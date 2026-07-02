@@ -44,15 +44,9 @@ class HomeController extends GetxController {
 
   // Áp dụng cả tìm kiếm lẫn lọc giá
   void _applyFilters() {
-    // filteredProducts.assignAll(
-    //   getProductsUC().where((p) {
-    //     final matchName = p.name.toLowerCase().contains(_keyword.toLowerCase());
-    //     final matchMin = _minPrice == null || p.price >= _minPrice!;
-    //     final matchMax = _maxPrice == null || p.price <= _maxPrice!;
-    //     return matchName && matchMin && matchMax;
-    //   }).toList(),
-    // );
-        filteredProducts.assignAll(filterProductUC( minPrice: _minPrice ,maxPrice: _maxPrice));
+    filteredProducts.assignAll(
+      filterProductUC(minPrice: _minPrice, maxPrice: _maxPrice),
+    );
   }
 
   void apply() {
