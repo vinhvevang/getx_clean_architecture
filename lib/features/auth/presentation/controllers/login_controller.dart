@@ -6,58 +6,65 @@ import 'package:getx_clean_archi/features/auth/presentation/pages/login_page.dar
 import 'package:getx_clean_archi/features/auth/presentation/pages/main_page.dart';
 
 class LoginController extends GetxController {
-  final Login loginUseCase;
-  LoginController(this.loginUseCase);
+final Login loginUseCase;
+LoginController(this.loginUseCase);
 
-  final tax = TextEditingController();
-  final username = TextEditingController();
-  final password = TextEditingController();
-  final formKey = GlobalKey<FormState>();
-  final isLoading = false.obs;
-  final isOScured = true.obs;
+final tax = TextEditingController();
+final username = TextEditingController();
+final password = TextEditingController();
 
-  Future<void> submit() async {
-    final taxNumber = int.tryParse(tax.text);
+final formKey = GlobalKey<FormState>();
 
-    if (taxNumber == null) {
-      return;
-    }
+final isLoading = false.obs;
+final isOScured = true.obs;
 
-    isLoading.value = true;
+void checkVisibility() {
+isOScured.value = !isOScured.value;
+}
 
-    await Future.delayed(const Duration(seconds: 1));
+Future<void> submit() async {
+/// VALIDATE FORM TRƯỚC
+if (!formKey.currentState!.validate()) return;
 
-    final isAuth = loginUseCase(taxNumber, username.text, password.text);
 
-    isLoading.value = false;
+final taxNumber = int.tryParse(tax.text);
+if (taxNumber == null) return;
 
-    if (isAuth) {
-      Get.off(() => const MainPage());
-    } else {}
+try {
+  isLoading.value = true;
+
+  await Future.delayed(const Duration(seconds: 1));
+
+  final isAuth = loginUseCase(
+    taxNumber,
+    username.text.trim(),
+    password.text.trim(),
+  );
+
+  if (isAuth) {
+    Get.off(() => const MainPage());
+  } else {
+    Get.snackbar("Lỗi", "Thông tin đăng nhập không đúng");
   }
+} catch (e) {
+  Get.snackbar("Error", "Có lỗi xảy ra");
+} finally {
+  isLoading.value = false;
+}
 
-  void checkVisibility() {
-    isOScured.value = !isOScured.value;
-  }
 
-  void handleIsLoading() {
-    if (isLoading.value) return;
+}
 
-    if (formKey.currentState!.validate()) {
-      submit();
-    }
-  }
+void logout() {
+Get.find<NavController>().reset();
+Get.offAll(() => LoginPage());
+}
 
-  void logout() {
-    Get.find<NavController>().reset();
-    Get.offAll(() => LoginPage());
-  }
-
-  @override
-  void onClose() {
-    tax.dispose();
-    username.dispose();
-    password.dispose();
-    super.onClose();
-  }
+@override
+void onClose() {
+tax.dispose();
+username.dispose();
+password.dispose();
+super.onClose();
+}
 }

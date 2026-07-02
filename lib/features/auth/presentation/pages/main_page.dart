@@ -24,6 +24,7 @@ class MainPage extends StatelessWidget {
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: nav.tabIndex.value,
           onTap: nav.changeTab,
+          selectedItemColor: Color(0xFFEE4D2D),
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.home),   label: 'Home'),
             BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Tài khoản'),

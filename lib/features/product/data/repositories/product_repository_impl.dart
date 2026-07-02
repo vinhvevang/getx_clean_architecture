@@ -1,45 +1,50 @@
-
-
 import 'package:getx_clean_archi/features/product/domain/entities/product.dart';
 import 'package:getx_clean_archi/features/product/domain/repository/product_repository.dart';
 
-class ProductRepositoryImpl  implements ProductRepository{
-   List<Product> _products = [];
-   List<Product> _findProduct = [];
-  @override
-  List<Product> getProducts(){
-      return _products;
-  } 
-   
+class ProductRepositoryImpl implements ProductRepository {
   
+  final List<Product> products = [Product("giày hôi", 1000000, 100),
+ Product("giày thơm", 10000000, 50),
+   Product("giày da", 999999, 70),
+   Product("giày bata ", 100000, 1000)];
+
+  List<Product> _findProduct = [];
+  @override
+  List<Product> getProducts() {
+ 
+    return products;
+  }
 
   @override
   void addProduct(Product product) {
     // TODO: implement addProduct
-    _products.add(product);
+    products.add(product);
   }
-  
+
   @override
-  void editProduct(Product product, int i) {
-    // TODO: implement editProduct
-    _products[i] = product;
+  void editProduct(Product product, int index) {
+    if (index >= 0 && index < products.length) {
+      products[index] = product;
+    }
   }
-  
+
   @override
   void filterProduct(int price) {
     // TODO: implement filterProduct
   }
-  
+
   @override
   void findProduct(String name) {
     // TODO: implement findProduct
-   _findProduct = _products.where((p)=> p.name.toLowerCase().contains(name.toLowerCase())).toList();
+    _findProduct =
+        products
+            .where((p) => p.name.toLowerCase().contains(name.toLowerCase()))
+            .toList();
   }
-  
+
   @override
   void removeProduct(int id) {
     // TODO: implement removeProduct
-    _products.removeAt(id);
+    products.removeAt(id);
   }
-
 }

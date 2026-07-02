@@ -8,6 +8,9 @@ class AppTextFormField extends StatelessWidget {
   final Widget? suffixIcon;
   final TextInputType? keyboardType;
 
+  /// 🔥 thêm dòng này
+  final AutovalidateMode autovalidateMode;
+
   const AppTextFormField({
     super.key,
     required this.controller,
@@ -16,21 +19,26 @@ class AppTextFormField extends StatelessWidget {
     this.obscureText = false,
     this.suffixIcon,
     this.keyboardType,
+    this.autovalidateMode = AutovalidateMode.disabled, // default
   });
 
   @override
   Widget build(BuildContext context) {
     return FormField<String>(
+      autovalidateMode: autovalidateMode, // 🔥 áp dụng vào đây
       validator: validator,
+      initialValue: controller.text,
       builder: (state) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            TextFormField(
+            TextField(
               controller: controller,
               obscureText: obscureText,
               keyboardType: keyboardType,
-              onChanged: state.didChange,
+              onChanged: (value) {
+                state.didChange(value); // update FormField state
+              },
               decoration: InputDecoration(
                 labelText: label,
                 border: const OutlineInputBorder(),
@@ -48,16 +56,13 @@ class AppTextFormField extends StatelessWidget {
               ),
             ),
 
-            /// Error bên phải giống bạn
+            /// Error bên phải
             if (state.hasError)
               Padding(
                 padding: const EdgeInsets.only(top: 6, right: 4),
                 child: Text(
                   state.errorText ?? '',
-                  style: const TextStyle(
-                    color: Colors.red,
-                    fontSize: 12,
-                  ),
+                  style: const TextStyle(color: Colors.red, fontSize: 12),
                 ),
               ),
           ],

@@ -1,6 +1,6 @@
 class Product{
   String name;
-  int quan;
-  int price;
+  double quan;
+  double price;
   Product(this.name,this.price,this.quan);
 }

@@ -6,8 +6,6 @@ import 'package:getx_clean_archi/features/auth/presentation/controllers/login_co
 class LoginPage extends GetView<LoginController> {
   LoginPage({super.key});
 
-  // final _formKey = GlobalKey<FormState>();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -15,21 +13,24 @@ class LoginPage extends GetView<LoginController> {
         padding: const EdgeInsets.all(24),
         child: Form(
           key: controller.formKey,
-          autovalidateMode: AutovalidateMode.disabled,
+          autovalidateMode:
+              AutovalidateMode.disabled, // ❌ tắt auto validate toàn form
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Mã số thuế (custom error right)
+              /// TAX
               AppTextFormField(
                 controller: controller.tax,
                 label: "Mã số thuế",
                 keyboardType: TextInputType.number,
+                autovalidateMode:
+                    AutovalidateMode.onUserInteraction, // ✅ chỉ field này
                 validator: (value) {
-                  if (controller.tax.text.isEmpty) {
-                    return 'mã số thuế Không được để trống';
+                  if (value == null || value.isEmpty) {
+                    return 'Không được để trống';
                   }
-                  if (int.tryParse(controller.tax.text) != 11111) {
-                    return "mã số thuế không hợp lệ";
+                  if (int.tryParse(value) != 11111) {
+                    return 'Mã số thuế không hợp lệ';
                   }
                   return null;
                 },
@@ -37,16 +38,17 @@ class LoginPage extends GetView<LoginController> {
 
               const SizedBox(height: 12),
 
-              // Username
+              /// USERNAME
               AppTextFormField(
                 controller: controller.username,
                 label: "Tên đăng nhập",
+                autovalidateMode: AutovalidateMode.onUserInteraction,
                 validator: (value) {
-                  if (controller.username.text.isEmpty) {
-                    return 'tài khoản Không được để trống';
+                  if (value == null || value.isEmpty) {
+                    return 'Không được để trống';
                   }
-                  if (controller.username.text != "demo") {
-                    return "Sai tên tài khoản";
+                  if (value != "demo") {
+                    return 'Sai tên tài khoản';
                   }
                   return null;
                 },
@@ -54,18 +56,19 @@ class LoginPage extends GetView<LoginController> {
 
               const SizedBox(height: 12),
 
-              // Password
+              /// PASSWORD
               Obx(
                 () => AppTextFormField(
                   controller: controller.password,
                   label: "Mật khẩu",
                   obscureText: controller.isOScured.value,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   validator: (value) {
-                    if (controller.password.text.isEmpty) {
-                      return 'mật khẩu Không được để trống';
+                    if (value == null || value.isEmpty) {
+                      return 'Không được để trống';
                     }
-                    if (controller.password.text != "123456") {
-                      return "Sai mật khẩu";
+                    if (value != "123456") {
+                      return 'Sai mật khẩu';
                     }
                     return null;
                   },
@@ -82,13 +85,17 @@ class LoginPage extends GetView<LoginController> {
 
               const SizedBox(height: 24),
 
-              // Button (Obx đúng chỗ)
+              /// BUTTON
               SizedBox(
                 width: double.infinity,
+                height: 55,
                 child: Obx(
                   () => ElevatedButton(
-                    onPressed: () => controller.handleIsLoading(),
-
+                    onPressed:
+                        controller.isLoading.value ? null : controller.submit,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFEE4D2D),
+                    ),
                     child:
                         controller.isLoading.value
                             ? const SizedBox(
