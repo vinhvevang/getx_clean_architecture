@@ -32,6 +32,8 @@ class HomeController extends GetxController {
   final editQuan = TextEditingController();
   final findName = TextEditingController();
 
+  final mincontroller = TextEditingController();
+  final maxcontroller = TextEditingController();
   // Danh sách reactive
   final products = <Product>[].obs;
   final filteredProducts = <Product>[].obs;
@@ -42,14 +44,23 @@ class HomeController extends GetxController {
 
   // Áp dụng cả tìm kiếm lẫn lọc giá
   void _applyFilters() {
-    filteredProducts.assignAll(
-      getProductsUC().where((p) {
-        final matchName = p.name.toLowerCase().contains(_keyword.toLowerCase());
-        final matchMin = _minPrice == null || p.price >= _minPrice!;
-        final matchMax = _maxPrice == null || p.price <= _maxPrice!;
-        return matchName && matchMin && matchMax;
-      }).toList(),
+    // filteredProducts.assignAll(
+    //   getProductsUC().where((p) {
+    //     final matchName = p.name.toLowerCase().contains(_keyword.toLowerCase());
+    //     final matchMin = _minPrice == null || p.price >= _minPrice!;
+    //     final matchMax = _maxPrice == null || p.price <= _maxPrice!;
+    //     return matchName && matchMin && matchMax;
+    //   }).toList(),
+    // );
+        filteredProducts.assignAll(filterProductUC( minPrice: _minPrice ,maxPrice: _maxPrice));
+  }
+
+  void apply() {
+    filter(
+      minPrice: int.tryParse(mincontroller.text),
+      maxPrice: int.tryParse(maxcontroller.text),
     );
+    Get.back();
   }
 
   void _refreshAll() {
