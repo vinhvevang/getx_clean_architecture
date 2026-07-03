@@ -1,3 +1,4 @@
+
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:getx_clean_archi/features/product/domain/entities/product.dart';

@@ -7,37 +7,48 @@ import 'package:getx_clean_archi/features/product/presentation/controllers/home_
 class HomePage extends GetView<HomeController> {
   HomePage({super.key});
 
+ 
   void _showAddDialog() {
+    final formKey = GlobalKey<FormState>();
+
     Get.dialog(
       AlertDialog(
         title: const Text('Thêm sản phẩm'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextFormField(
-              controller: controller.name,
-              decoration: const InputDecoration(labelText: 'Tên'),
-            ),
-            TextFormField(
-              controller: controller.price,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Giá'),
-            ),
-            TextFormField(
-              controller: controller.quan,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Số lượng'),
-            ),
-          ],
+        content: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: controller.name,
+                decoration: const InputDecoration(labelText: 'Tên'),
+                validator: (v) => v!.isEmpty ? 'Không được để trống' : null,
+              ),
+              TextFormField(
+                controller: controller.price,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: 'Giá'),
+                validator: (v) => v!.isEmpty ? 'Không được để trống' : null,
+              ),
+              TextFormField(
+                controller: controller.quan,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: 'Số lượng'),
+                validator: (v) => v!.isEmpty ? 'Không được để trống' : null,
+              ),
+            ],
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () {
+              if (!formKey.currentState!.validate()) return;
+
               controller.add(
                 Product(
                   controller.name.text,
-                  double.tryParse(controller.price.text) ?? 0,
-                  double.tryParse(controller.quan.text) ?? 0,
+                  double.parse(controller.price.text),
+                  double.parse(controller.quan.text),
                 ),
               );
               Get.back();
@@ -50,6 +61,8 @@ class HomePage extends GetView<HomeController> {
   }
 
   void _showEditDialog(Product old, int index) {
+    final formKey = GlobalKey<FormState>();
+
     controller.editName.text = old.name;
     controller.editPrice.text = old.price.toString();
     controller.editQuan.text = old.quan.toString();
@@ -57,33 +70,41 @@ class HomePage extends GetView<HomeController> {
     Get.dialog(
       AlertDialog(
         title: const Text('Sửa sản phẩm'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextFormField(
-              controller: controller.editName,
-              decoration: const InputDecoration(labelText: 'Tên'),
-            ),
-            TextFormField(
-              controller: controller.editPrice,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Giá'),
-            ),
-            TextFormField(
-              controller: controller.editQuan,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Số lượng'),
-            ),
-          ],
+        content: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: controller.editName,
+                decoration: const InputDecoration(labelText: 'Tên'),
+                validator: (v) => v!.isEmpty ? 'Không được để trống' : null,
+              ),
+              TextFormField(
+                controller: controller.editPrice,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: 'Giá'),
+                validator: (v) => v!.isEmpty ? 'Không được để trống' : null,
+              ),
+              TextFormField(
+                controller: controller.editQuan,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: 'Số lượng'),
+                validator: (v) => v!.isEmpty ? 'Không được để trống' : null,
+              ),
+            ],
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () {
+              if (!formKey.currentState!.validate()) return;
+
               controller.edit(
                 Product(
                   controller.editName.text,
-                  double.tryParse(controller.editPrice.text) ?? 0,
-                  double.tryParse(controller.editQuan.text) ?? 0,
+                  double.parse(controller.editPrice.text),
+                  double.parse(controller.editQuan.text),
                 ),
                 index,
               );

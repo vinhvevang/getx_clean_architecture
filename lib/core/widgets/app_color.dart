@@ -7,13 +7,13 @@ import 'package:flutter/material.dart';
 class AppColors {
   AppColors._();
 
-  /// Màu cam thương hiệu (tương tự Shopee).
+  /// Màu cam thương hiệu (tương tự Shopee). 🔥
   static const Color primary = Color(0xFFEE4D2D);
 
-  /// Cam đậm hơn, dùng cho trạng thái pressed/gradient.
+  /// Cam đậm hơn, dùng cho trạng thái pressed/gradient. 🔥
   static const Color primaryDark = Color(0xFFD73211);
 
-  /// Nền xám nhạt cho toàn màn hình (giống nền app Shopee).
+  /// Nền xám nhạt cho toàn màn hình (giống nền app Shopee). 🔥
   static const Color background = Color(0xFFF5F5F5);
 
   /// Viền/khung mảnh cho card, ô ảnh placeholder.

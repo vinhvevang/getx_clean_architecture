@@ -29,7 +29,6 @@ class CardProduct extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: Colors.white,
@@ -150,7 +149,7 @@ class CardProduct extends StatelessWidget {
               children: [
                 /// NAME
                 Text(
-                 "Tên : " + name,
+                  "Tên : " + name,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(fontSize: 13, height: 1.3),
@@ -160,7 +159,7 @@ class CardProduct extends StatelessWidget {
 
                 /// PRICE
                 Text(
-                  "giá : " +   AppFormatter.currency(price),
+                  "giá : " + AppFormatter.currency(price),
                   style: const TextStyle(
                     color: Color(0xFFEE4D2D), // Shopee orange
                     fontWeight: FontWeight.w700,

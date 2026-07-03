@@ -6,65 +6,60 @@ import 'package:getx_clean_archi/features/auth/presentation/pages/login_page.dar
 import 'package:getx_clean_archi/features/auth/presentation/pages/main_page.dart';
 
 class LoginController extends GetxController {
-final Login loginUseCase;
-LoginController(this.loginUseCase);
+  final Login loginUseCase;
+  LoginController(this.loginUseCase);
 
-final tax = TextEditingController();
-final username = TextEditingController();
-final password = TextEditingController();
+  final tax = TextEditingController();
+  final username = TextEditingController();
+  final password = TextEditingController();
+  final isSubmitted = false.obs;
+  final formKey = GlobalKey<FormState>();
+final text = ''.obs;
+  final isLoading = false.obs;
+  final isOScured = true.obs;
 
-final formKey = GlobalKey<FormState>();
-
-final isLoading = false.obs;
-final isOScured = true.obs;
-
-void checkVisibility() {
-isOScured.value = !isOScured.value;
-}
-
-Future<void> submit() async {
-/// VALIDATE FORM TRƯỚC
-if (!formKey.currentState!.validate()) return;
-
-
-final taxNumber = int.tryParse(tax.text);
-if (taxNumber == null) return;
-
-try {
-  isLoading.value = true;
-
-  await Future.delayed(const Duration(seconds: 1));
-
-  final isAuth = loginUseCase(
-    taxNumber,
-    username.text.trim(),
-    password.text.trim(),
-  );
-
-  if (isAuth) {
-    Get.off(() => const MainPage());
-  } else {
-    Get.snackbar("Lỗi", "Thông tin đăng nhập không đúng");
+  void checkVisibility() {
+    isOScured.value = !isOScured.value;
   }
-} catch (e) {
-  Get.snackbar("Error", "Có lỗi xảy ra");
-} finally {
-  isLoading.value = false;
-}
 
+  Future<String> submit() async {
+    isSubmitted.value = true;
 
-}
+    if (!formKey.currentState!.validate()) return '';
 
-void logout() {
-Get.find<NavController>().reset();
-Get.offAll(() => LoginPage());
-}
+    final taxNumber = int.tryParse(tax.text);
+    if (taxNumber == null) return text.value;
 
-@override
-void onClose() {
-tax.dispose();
-username.dispose();
-password.dispose();
-super.onClose();
-}
+    isLoading.value = true;
+
+    await Future.delayed(const Duration(seconds: 1));
+
+    final isAuth = loginUseCase(
+      taxNumber,
+      username.text.trim(),
+      password.text.trim(),
+    );
+
+    isLoading.value = false;
+
+    if (isAuth) {
+      Get.off(() => const MainPage());
+    } else {
+      Get.snackbar("Lỗi", "Sai thông tin đăng nhập");
+    }
+    return '';
+  }
+
+  void logout() {
+    Get.find<NavController>().reset();
+    Get.offAll(() => LoginPage());
+  }
+
+  @override
+  void onClose() {
+    tax.dispose();
+    username.dispose();
+    password.dispose();
+    super.onClose();
+  }
 }
