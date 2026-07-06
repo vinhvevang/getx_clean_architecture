@@ -80,7 +80,7 @@ class CardProduct extends StatelessWidget {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.red,
+                        color: AppColors.danger,
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: const Text(
@@ -130,12 +130,12 @@ class CardProduct extends StatelessWidget {
                               Icon(
                                 Icons.delete_outline,
                                 size: 18,
-                                color: Colors.red,
+                                color: AppColors.danger,
                               ),
                               SizedBox(width: 8),
                               Text(
                                 'Xóa',
-                                style: TextStyle(color: Colors.red),
+                                style: TextStyle(color: AppColors.danger),
                               ),
                             ],
                           ),
@@ -168,7 +168,7 @@ class CardProduct extends StatelessWidget {
                 Text(
                   AppFormatter.currency(price),
                   style: const TextStyle(
-                    color: Color(0xFFEE4D2D),
+                    color: AppColors.primary,
                     fontWeight: FontWeight.w700,
                     fontSize: 16,
                   ),

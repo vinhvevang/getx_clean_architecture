@@ -1,3 +1,3 @@
 abstract class AuthRepository {
-  bool login(int tax, String username, String password);
+  bool login(int taxCode, String username, String password);
 }

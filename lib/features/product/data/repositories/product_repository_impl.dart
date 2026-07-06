@@ -2,7 +2,7 @@ import 'package:getx_clean_archi/features/product/domain/entities/product.dart';
 import 'package:getx_clean_archi/features/product/domain/repository/product_repository.dart';
 
 class ProductRepositoryImpl implements ProductRepository {
-  final List<Product> products = [
+  final List<Product> _products = [
     Product(
       "giày hôi",
       1000000,
@@ -42,33 +42,25 @@ class ProductRepositoryImpl implements ProductRepository {
 
   @override
   List<Product> getProducts() {
-    return List.from(products); // 👈 tránh mutate trực tiếp
+    return List.from(_products); // tránh mutate trực tiếp danh sách gốc
   }
 
   @override
   void addProduct(Product product) {
-    products.add(product);
+    _products.add(product);
   }
 
   @override
   void editProduct(Product product, int index) {
-    if (index >= 0 && index < products.length) {
-      products[index] = product;
+    if (index >= 0 && index < _products.length) {
+      _products[index] = product;
     }
   }
 
   @override
   void removeProduct(int index) {
-    if (index >= 0 && index < products.length) {
-      products.removeAt(index);
+    if (index >= 0 && index < _products.length) {
+      _products.removeAt(index);
     }
   }
-
-  /// ❌ KHÔNG dùng nữa (để trống hoặc xóa khỏi interface)
-  @override
-  void filterProduct(int price) {}
-
-  /// ❌ KHÔNG cần thiết (search đã làm ở UseCase)
-  @override
-  void findProduct(String name) {}
 }

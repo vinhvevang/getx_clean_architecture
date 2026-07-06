@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:getx_clean_archi/core/constant/app_images.dart';
-import 'package:getx_clean_archi/core/widgets/app_text_field.dart';
-import 'package:getx_clean_archi/features/auth/presentation/controllers/login_controller.dart';
+import 'package:getx_clean_archi/core/utils/app_input_formatters.dart';
+import 'package:getx_clean_archi/core/widgets/app_color.dart';
+import 'package:getx_clean_archi/core/widgets/login_text_field.dart';
+import '../controllers/login_controller.dart';
 
 class LoginPage extends GetView<LoginController> {
   const LoginPage({super.key});
@@ -17,20 +18,20 @@ class LoginPage extends GetView<LoginController> {
           padding: const EdgeInsets.all(24),
           child: Stack(
             children: [
-              /// LOGO GÓC TRÁI TRÊN
+              /// LOGO
               Positioned(
                 top: 0,
                 right: 100,
                 child: SizedBox(
                   width: 300,
                   child: SvgPicture.asset(
-                    AppImages.biglogo,
+                    AppImages.bigLogo,
                     fit: BoxFit.contain,
                   ),
                 ),
               ),
 
-              /// FORM Ở GIỮA
+              /// FORM
               Align(
                 alignment: Alignment.topCenter,
                 child: Padding(
@@ -39,91 +40,47 @@ class LoginPage extends GetView<LoginController> {
                     key: controller.formKey,
                     child: SingleChildScrollView(
                       child: Column(
-                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          /// TAX
-                          Obx(
-                            () => AppTextFormField(
-                              controller: controller.tax,
-                              label: "Mã số thuế",
-                              isSubmitted: controller.isSubmitted.value,
-                              focusNode: controller.taxFocus,
-                              textInputAction: TextInputAction.next,
-                              onChanged: (_) => controller.onChanged(),
-                              keyboardType: TextInputType.number,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly,
-                              ],
-                              validator: (value) => null,
-                              onEditingComplete: () {
-                                FocusScope.of(
-                                  context,
-                                ).requestFocus(controller.userFocus);
-                              },
-                            ),
+                          LoginTextField(
+                            controller: controller.taxCodeController,
+                            label: "Mã số thuế",
+                            hintText: "Nhập mã số thuế",
+                            focusNode: controller.taxCodeFocusNode,
+                            nextFocus: controller.usernameFocusNode,
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [AppInputFormatters.positiveInteger],
+                            validator: controller.validateTaxCode,
                           ),
 
                           const SizedBox(height: 20),
 
-                          /// USERNAME
-                          Obx(
-                            () => AppTextFormField(
-                              controller: controller.username,
-                              label: "Tên đăng nhập",
-                              isSubmitted: controller.isSubmitted.value,
-                              focusNode: controller.userFocus,
-                              textInputAction: TextInputAction.next,
-                              onChanged: (_) => controller.onChanged(),
-                              validator: (value) => null,
-                              onEditingComplete: () {
-                                FocusScope.of(
-                                  context,
-                                ).requestFocus(controller.passFocus);
-                              },
-                            ),
+                          LoginTextField(
+                            controller: controller.usernameController,
+                            label: "Tên đăng nhập",
+                            hintText: "Nhập tên đăng nhập",
+                            focusNode: controller.usernameFocusNode,
+                            nextFocus: controller.passwordFocusNode,
                           ),
 
                           const SizedBox(height: 20),
 
-                          /// PASSWORD
-                          Obx(
-                            () => AppTextFormField(
-                              controller: controller.password,
-                              label: "Mật khẩu",
-                              isSubmitted: controller.isSubmitted.value,
-                              focusNode: controller.passFocus,
-                              textInputAction: TextInputAction.done,
-                              onChanged: (_) => controller.onChanged(),
-                              obscureText: controller.isOScured.value,
-                              validator: (value) => null,
-                              onEditingComplete: () {
-                                FocusScope.of(context).unfocus();
-                                controller.submit();
-                              },
-                              suffixIcon: IconButton(
-                                onPressed: controller.checkVisibility,
-                                icon: Icon(
-                                  controller.isOScured.value
-                                      ? Icons.visibility_off
-                                      : Icons.visibility,
-                                ),
-                              ),
-                            ),
+                          LoginTextField(
+                            controller: controller.passwordController,
+                            label: "Mật khẩu",
+                            hintText: "Nhập mật khẩu",
+                            focusNode: controller.passwordFocusNode,
+                            isPassword: true,
                           ),
 
                           const SizedBox(height: 24),
 
-                          Container(
-                            width: double.infinity,
-                            height: 55,
-                            decoration: BoxDecoration(
-                              color: Color(0xFFF24E1E),
-                              borderRadius: BorderRadius.circular(3),
-                            ),
-                            child: Obx(
-                              () => ElevatedButton(
+                          Obx(
+                            () => SizedBox(
+                              width: double.infinity,
+                              height: 55,
+                              child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Color(0xFFF24E1E),
+                                  backgroundColor: AppColors.primary,
                                 ),
                                 onPressed:
                                     controller.isLoading.value
@@ -131,70 +88,38 @@ class LoginPage extends GetView<LoginController> {
                                         : controller.submit,
                                 child:
                                     controller.isLoading.value
-                                        ? const CircularProgressIndicator()
-                                        : const Text('Đăng nhập'),
+                                        ? const CircularProgressIndicator(
+                                          color: Colors.white,
+                                        )
+                                        : const Text(
+                                          'Đăng nhập',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
                               ),
                             ),
                           ),
-                          // Spacer(),
-                          SizedBox(height: 250),
-                          Row(
+
+                          const SizedBox(height: 200),
+
+                          /// FOOTER
+                          const Row(
                             children: [
-                              Container(
-                                height: 75,
-                                width: 100,
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey[300]!),
-                                  borderRadius: BorderRadius.circular(5)
-                                ),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      height: 25,
-                                      width: 25,
-                                      child: SvgPicture.asset(AppImages.headphones,fit: BoxFit.contain,)),
-                                      Text("Tro giup",style: TextStyle(fontSize: 15),)
-                                  ],
-                                ),
+                              _LoginFooterItem(
+                                iconAsset: AppImages.headphones,
+                                label: "Trợ giúp",
                               ),
-                              SizedBox(width: 15,),
-                              Container(
-                                height: 75,
-                                width: 100,
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey[300]!),
-                                  borderRadius: BorderRadius.circular(5)
-                                ),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      height: 25,
-                                      width: 25,
-                                      child: SvgPicture.asset(AppImages.sociallinnk,fit: BoxFit.contain,)),
-                                      Text("contact",style: TextStyle(fontSize: 15),)
-                                  ],
-                                ),
+                              SizedBox(width: 15),
+                              _LoginFooterItem(
+                                iconAsset: AppImages.socialLink,
+                                label: "Contact",
                               ),
-                              SizedBox(width: 15,),
-                              Container(
-                                height: 75,
-                                width: 100,
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey[300]!),
-                                  borderRadius: BorderRadius.circular(5)
-                                ),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      height: 25,
-                                      width: 25,
-                                      child: SvgPicture.asset(AppImages.searchnormal,fit: BoxFit.contain,)),
-                                      Text("Tra cuu",style: TextStyle(fontSize: 15),)
-                                  ],
-                                ),
+                              SizedBox(width: 15),
+                              _LoginFooterItem(
+                                iconAsset: AppImages.searchNormal,
+                                label: "Tra cứu",
                               ),
                             ],
-                          )
+                          ),
                         ],
                       ),
                     ),
@@ -204,6 +129,39 @@ class LoginPage extends GetView<LoginController> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Một ô ở thanh footer (icon + nhãn). Trước đây 3 ô này được viết lặp lại
+/// y hệt nhau bằng Container/Row thủ công; giờ gộp về một widget dùng chung.
+class _LoginFooterItem extends StatelessWidget {
+  final String iconAsset;
+  final String label;
+
+  const _LoginFooterItem({required this.iconAsset, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 75,
+      width: 100,
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey[300]!),
+        borderRadius: BorderRadius.circular(5),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+            height: 25,
+            width: 25,
+            child: SvgPicture.asset(iconAsset, fit: BoxFit.contain),
+          ),
+          const SizedBox(width: 5),
+          Text(label, style: const TextStyle(fontSize: 15)),
+        ],
       ),
     );
   }

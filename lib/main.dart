@@ -1,52 +1,44 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-
-import 'package:getx_clean_archi/features/auth/data/repositories/auth_repository_impl.dart';
-import 'package:getx_clean_archi/features/auth/domain/usecases/login.dart';
-import 'package:getx_clean_archi/features/auth/presentation/controllers/login_controller.dart';
-import 'package:getx_clean_archi/features/auth/presentation/controllers/nav_controller.dart';
+import 'package:get/get_navigation/src/root/get_material_app.dart';
+import 'package:get/get_navigation/src/routes/get_route.dart';
+import 'package:getx_clean_archi/features/auth/bindings/login_bindings.dart';
+import 'package:getx_clean_archi/features/auth/bindings/logout_bindings.dart';
+import 'package:getx_clean_archi/features/auth/bindings/nav_bindings.dart';
 import 'package:getx_clean_archi/features/auth/presentation/pages/login_page.dart';
-
-import 'package:getx_clean_archi/features/product/data/repositories/product_repository_impl.dart';
-import 'package:getx_clean_archi/features/product/domain/usecases/add_product.dart';
-import 'package:getx_clean_archi/features/product/domain/usecases/edit_product.dart';
-import 'package:getx_clean_archi/features/product/domain/usecases/filtered_product.dart';
-import 'package:getx_clean_archi/features/product/domain/usecases/get_products.dart';
-import 'package:getx_clean_archi/features/product/domain/usecases/remove_product.dart';
-import 'package:getx_clean_archi/features/product/presentation/controllers/home_controller.dart';
+import 'package:getx_clean_archi/features/auth/presentation/pages/main_page.dart';
+import 'package:getx_clean_archi/features/product/bindings/product_bindings.dart';
+import 'package:getx_clean_archi/features/product/presentation/pages/home_page.dart';
 
 void main() {
-final authRepo = AuthRepositoryImpl();
-final productRepo = ProductRepositoryImpl();
+  runApp(
+    GetMaterialApp(
+      debugShowCheckedModeBanner: false,
 
-/// ================= USE CASES =================
-final loginUC = Login(authRepo);
+      initialRoute: '/login',
 
-final addProductUC = AddProduct(productRepo);
-final removeProductUC = RemoveProduct(productRepo);
-final editProductUC = EditProduct(productRepo);
-final getProductsUC = GetProducts(productRepo);
-final filterProductUC = FilterProduct();
+      getPages: [
+        GetPage(
+          name: '/login',
+          page: () => const LoginPage(),
+          binding: LoginBinding(),
+        ),
 
-/// ================= CONTROLLERS =================
-Get.put(LoginController(loginUC));
-Get.put(NavController());
-
-Get.put(
-HomeController(
-  filterProductUC:  filterProductUC,
-addProductUC: addProductUC,
-removeProductUC: removeProductUC,
-editProductUC: editProductUC,
-getProductsUC: getProductsUC,
-),
-);
-
-/// ================= APP =================
-runApp(
-GetMaterialApp(
-debugShowCheckedModeBanner: false,
-home: LoginPage(),
-),
-);
+        GetPage(
+          name: '/home',
+          page: () => HomePage(), // nhớ tạo
+          binding: HomeBinding(),
+        ),
+        GetPage(
+          name: '/main',
+          page: () => MainPage(),
+          binding: NavBinding(),
+          // IndexedStack trong MainPage build HomePage() ngay lập tức (tab 0),
+          // nên HomeController phải sẵn sàng ngay khi vào '/main', không phải
+          // chờ điều hướng riêng tới '/home'. Gắn thêm ở đây thay vì gộp code
+          // vào NavBinding để mỗi binding vẫn chỉ lo đúng phần việc của nó.
+          bindings: [HomeBinding(), LogoutBinding()],
+        ),
+      ],
+    ),
+  );
 }

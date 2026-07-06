@@ -1,14 +1,14 @@
 class Product {
   final String name;
   final double price;
-  final double quan;
+  final double quantity;
   final String imageUrl;
-  final String category; // 👈 NEW
+  final String category;
 
   Product(
     this.name,
     this.price,
-    this.quan,
+    this.quantity,
     this.imageUrl,
     this.category,
   );

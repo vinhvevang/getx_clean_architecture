@@ -2,85 +2,83 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:getx_clean_archi/features/auth/domain/usecases/login.dart';
-import 'package:getx_clean_archi/features/auth/presentation/controllers/nav_controller.dart';
-import 'package:getx_clean_archi/features/auth/presentation/pages/login_page.dart';
-import 'package:getx_clean_archi/features/auth/presentation/pages/main_page.dart';
 
 class LoginController extends GetxController {
-final Login loginUseCase;
-LoginController(this.loginUseCase);
+  final Login loginUseCase;
+  LoginController(this.loginUseCase);
 
-final tax = TextEditingController();
-final username = TextEditingController();
-final password = TextEditingController();
+  /// INPUT
+  final taxCodeController = TextEditingController();
+  final usernameController = TextEditingController();
+  final passwordController = TextEditingController();
 
-final taxFocus = FocusNode();
-final userFocus = FocusNode();
-final passFocus = FocusNode();
+  final taxCodeFocusNode = FocusNode();
+  final usernameFocusNode = FocusNode();
+  final passwordFocusNode = FocusNode();
 
-final isSubmitted = false.obs;
-final formKey = GlobalKey<FormState>();
-final isLoading = false.obs;
-final isOScured = true.obs;
+  final formKey = GlobalKey<FormState>();
 
-void checkVisibility() {
-isOScured.value = !isOScured.value;
-}
+  /// STATE
+  /// true kể từ lần bấm "Đăng nhập" đầu tiên -> từ đó validate theo thời gian thực.
+  final hasAttemptedSubmit = false.obs;
+  final isLoading = false.obs;
+  final isPasswordObscured = true.obs;
 
-void onChanged() {
-if (isSubmitted.value) {
-formKey.currentState!.validate();
-}
-}
+  void togglePasswordVisibility() {
+    isPasswordObscured.value = !isPasswordObscured.value;
+  }
 
-Future<void> submit() async {
-isSubmitted.value = true;
+  void onFieldChanged() {
+    if (hasAttemptedSubmit.value) {
+      formKey.currentState!.validate();
+    }
+  }
 
+  /// Mã số thuế bắt buộc là số nguyên dương.
+  String? validateTaxCode(String? value) {
+    final trimmed = (value ?? '').trim();
+    if (int.tryParse(trimmed) == null) return 'Mã số thuế không hợp lệ';
+    return null;
+  }
 
-if (!formKey.currentState!.validate()) return;
+  Future<void> submit() async {
+    hasAttemptedSubmit.value = true;
 
-final taxNumber = int.tryParse(tax.text);
-if (taxNumber == null) return;
+    if (!formKey.currentState!.validate()) return;
 
-isLoading.value = true;
+    final taxCode = int.tryParse(taxCodeController.text);
+    if (taxCode == null) return;
 
-await Future.delayed(const Duration(seconds: 1));
+    isLoading.value = true;
 
-final isAuth = loginUseCase(
-  taxNumber,
-  username.text.trim(),
-  password.text.trim(),
-);
+    // Giả lập độ trễ gọi API đăng nhập.
+    await Future.delayed(const Duration(seconds: 1));
 
-isLoading.value = false;
+    final isAuthenticated = loginUseCase(
+      taxCode,
+      usernameController.text.trim(),
+      passwordController.text.trim(),
+    );
 
-if (isAuth) {
-  Get.off(() => const MainPage());
-} else {
-  Get.snackbar("Lỗi", "Sai thông tin đăng nhập");
-}
+    isLoading.value = false;
 
+    if (isAuthenticated) {
+      Get.offNamed('/main');
+    } else {
+      Get.snackbar("Lỗi", "Sai thông tin đăng nhập");
+    }
+  }
 
-}
+  @override
+  void onClose() {
+    taxCodeController.dispose();
+    usernameController.dispose();
+    passwordController.dispose();
 
-void logout() {
-Get.find<NavController>().reset();
-Get.offAll(() => LoginPage());
-}
+    taxCodeFocusNode.dispose();
+    usernameFocusNode.dispose();
+    passwordFocusNode.dispose();
 
-@override
-void onClose() {
-tax.dispose();
-username.dispose();
-password.dispose();
-
-
-taxFocus.dispose();
-userFocus.dispose();
-passFocus.dispose();
-
-super.onClose();
-
-
-}
+    super.onClose();
+  }
 }

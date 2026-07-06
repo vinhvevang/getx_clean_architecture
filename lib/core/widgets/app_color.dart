@@ -21,4 +21,7 @@ class AppColors {
 
   /// Chữ phụ (mô tả, số lượng tồn kho...).
   static const Color textSecondary = Color(0xFF757575);
+
+  /// Màu cảnh báo/hành động nguy hiểm (xóa, đăng xuất...).
+  static const Color danger = Color(0xFFE53935);
 }

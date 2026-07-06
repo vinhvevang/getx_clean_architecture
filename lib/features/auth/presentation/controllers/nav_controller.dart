@@ -1,7 +1,10 @@
 import 'package:get/get.dart';
 
+/// Quản lý tab đang chọn ở màn hình chính (bottom navigation).
 class NavController extends GetxController {
-  final tabIndex = 0.obs;
-  void changeTab(int index) => tabIndex.value = index;
-  void reset() => tabIndex.value = 0;
+  final currentTabIndex = 0.obs;
+
+  void changeTab(int index) => currentTabIndex.value = index;
+
+  void resetTab() => currentTabIndex.value = 0;
 }
