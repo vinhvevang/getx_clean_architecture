@@ -2,16 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:getx_clean_archi/core/widgets/app_color.dart';
 import 'package:getx_clean_archi/core/widgets/app_formatter.dart';
 
-/// Card sản phẩm kiểu Shopee:
-/// - Ảnh vuông
-/// - Menu 3 chấm góc phải
-/// - Tên tối đa 2 dòng
-/// - Giá nổi bật màu cam
-/// - Badge tồn kho thấp
 class CardProduct extends StatelessWidget {
   final String name;
   final int price;
   final int quantity;
+  final String imageUrl;
   final VoidCallback onDelete;
   final VoidCallback onEdit;
 
@@ -20,6 +15,7 @@ class CardProduct extends StatelessWidget {
     required this.name,
     required this.price,
     required this.quantity,
+    required this.imageUrl,
     required this.onDelete,
     required this.onEdit,
   });
@@ -50,18 +46,30 @@ class CardProduct extends StatelessWidget {
             aspectRatio: 1,
             child: Stack(
               children: [
-                Container(
-                  color: const Color(0xFFF5F5F5),
-                  child: const Center(
-                    child: Icon(
-                      Icons.shopping_bag_outlined,
-                      size: 20,
-                      color: Color(0xFFBDBDBD),
+                /// IMAGE NETWORK
+                Positioned.fill(
+                  child: Image.network(
+                    imageUrl,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Container(
+                      color: const Color(0xFFF5F5F5),
+                      child: const Center(
+                        child: Icon(
+                          Icons.image_not_supported_outlined,
+                          color: Colors.grey,
+                        ),
+                      ),
                     ),
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return const Center(
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      );
+                    },
                   ),
                 ),
 
-                /// Badge tồn kho thấp
+                /// BADGE LOW STOCK
                 if (isLowStock)
                   Positioned(
                     top: 6,
@@ -76,7 +84,7 @@ class CardProduct extends StatelessWidget {
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: const Text(
-                        '',
+                        'Sắp hết',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 10,
@@ -86,7 +94,7 @@ class CardProduct extends StatelessWidget {
                     ),
                   ),
 
-                /// Menu 3 chấm
+                /// MENU 3 DOT
                 Positioned(
                   top: 4,
                   right: 4,
@@ -104,36 +112,35 @@ class CardProduct extends StatelessWidget {
                         if (action == _ProductAction.edit) onEdit();
                         if (action == _ProductAction.delete) onDelete();
                       },
-                      itemBuilder:
-                          (context) => const [
-                            PopupMenuItem(
-                              value: _ProductAction.edit,
-                              child: Row(
-                                children: [
-                                  Icon(Icons.edit_outlined, size: 18),
-                                  SizedBox(width: 8),
-                                  Text('Sửa'),
-                                ],
+                      itemBuilder: (context) => const [
+                        PopupMenuItem(
+                          value: _ProductAction.edit,
+                          child: Row(
+                            children: [
+                              Icon(Icons.edit_outlined, size: 18),
+                              SizedBox(width: 8),
+                              Text('Sửa'),
+                            ],
+                          ),
+                        ),
+                        PopupMenuItem(
+                          value: _ProductAction.delete,
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.delete_outline,
+                                size: 18,
+                                color: Colors.red,
                               ),
-                            ),
-                            PopupMenuItem(
-                              value: _ProductAction.delete,
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.delete_outline,
-                                    size: 18,
-                                    color: Colors.red,
-                                  ),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    'Xóa',
-                                    style: TextStyle(color: Colors.red),
-                                  ),
-                                ],
+                              SizedBox(width: 8),
+                              Text(
+                                'Xóa',
+                                style: TextStyle(color: Colors.red),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -149,7 +156,7 @@ class CardProduct extends StatelessWidget {
               children: [
                 /// NAME
                 Text(
-                  "Tên : " + name,
+                  name,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(fontSize: 13, height: 1.3),
@@ -159,9 +166,9 @@ class CardProduct extends StatelessWidget {
 
                 /// PRICE
                 Text(
-                  "giá : " + AppFormatter.currency(price),
+                  AppFormatter.currency(price),
                   style: const TextStyle(
-                    color: Color(0xFFEE4D2D), // Shopee orange
+                    color: Color(0xFFEE4D2D),
                     fontWeight: FontWeight.w700,
                     fontSize: 16,
                   ),

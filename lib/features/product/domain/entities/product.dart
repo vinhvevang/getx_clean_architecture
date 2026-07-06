@@ -1,6 +1,15 @@
-class Product{
-  String name;
-  double quan;
-  double price;
-  Product(this.name,this.price,this.quan);
+class Product {
+  final String name;
+  final double price;
+  final double quan;
+  final String imageUrl;
+  final String category; // 👈 NEW
+
+  Product(
+    this.name,
+    this.price,
+    this.quan,
+    this.imageUrl,
+    this.category,
+  );
 }

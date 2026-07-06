@@ -1,65 +1,86 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:getx_clean_archi/features/auth/domain/usecases/login.dart';
 import 'package:getx_clean_archi/features/auth/presentation/controllers/nav_controller.dart';
 import 'package:getx_clean_archi/features/auth/presentation/pages/login_page.dart';
 import 'package:getx_clean_archi/features/auth/presentation/pages/main_page.dart';
 
 class LoginController extends GetxController {
-  final Login loginUseCase;
-  LoginController(this.loginUseCase);
+final Login loginUseCase;
+LoginController(this.loginUseCase);
 
-  final tax = TextEditingController();
-  final username = TextEditingController();
-  final password = TextEditingController();
-  final isSubmitted = false.obs;
-  final formKey = GlobalKey<FormState>();
-final text = ''.obs;
-  final isLoading = false.obs;
-  final isOScured = true.obs;
+final tax = TextEditingController();
+final username = TextEditingController();
+final password = TextEditingController();
 
-  void checkVisibility() {
-    isOScured.value = !isOScured.value;
-  }
+final taxFocus = FocusNode();
+final userFocus = FocusNode();
+final passFocus = FocusNode();
 
-  Future<String> submit() async {
-    isSubmitted.value = true;
+final isSubmitted = false.obs;
+final formKey = GlobalKey<FormState>();
+final isLoading = false.obs;
+final isOScured = true.obs;
 
-    if (!formKey.currentState!.validate()) return '';
+void checkVisibility() {
+isOScured.value = !isOScured.value;
+}
 
-    final taxNumber = int.tryParse(tax.text);
-    if (taxNumber == null) return text.value;
+void onChanged() {
+if (isSubmitted.value) {
+formKey.currentState!.validate();
+}
+}
 
-    isLoading.value = true;
+Future<void> submit() async {
+isSubmitted.value = true;
 
-    await Future.delayed(const Duration(seconds: 1));
 
-    final isAuth = loginUseCase(
-      taxNumber,
-      username.text.trim(),
-      password.text.trim(),
-    );
+if (!formKey.currentState!.validate()) return;
 
-    isLoading.value = false;
+final taxNumber = int.tryParse(tax.text);
+if (taxNumber == null) return;
 
-    if (isAuth) {
-      Get.off(() => const MainPage());
-    } else {
-      Get.snackbar("Lỗi", "Sai thông tin đăng nhập");
-    }
-    return '';
-  }
+isLoading.value = true;
 
-  void logout() {
-    Get.find<NavController>().reset();
-    Get.offAll(() => LoginPage());
-  }
+await Future.delayed(const Duration(seconds: 1));
 
-  @override
-  void onClose() {
-    tax.dispose();
-    username.dispose();
-    password.dispose();
-    super.onClose();
-  }
+final isAuth = loginUseCase(
+  taxNumber,
+  username.text.trim(),
+  password.text.trim(),
+);
+
+isLoading.value = false;
+
+if (isAuth) {
+  Get.off(() => const MainPage());
+} else {
+  Get.snackbar("Lỗi", "Sai thông tin đăng nhập");
+}
+
+
+}
+
+void logout() {
+Get.find<NavController>().reset();
+Get.offAll(() => LoginPage());
+}
+
+@override
+void onClose() {
+tax.dispose();
+username.dispose();
+password.dispose();
+
+
+taxFocus.dispose();
+userFocus.dispose();
+passFocus.dispose();
+
+super.onClose();
+
+
+}
 }

@@ -10,6 +10,7 @@ import 'package:getx_clean_archi/features/auth/presentation/pages/login_page.dar
 import 'package:getx_clean_archi/features/product/data/repositories/product_repository_impl.dart';
 import 'package:getx_clean_archi/features/product/domain/usecases/add_product.dart';
 import 'package:getx_clean_archi/features/product/domain/usecases/edit_product.dart';
+import 'package:getx_clean_archi/features/product/domain/usecases/filtered_product.dart';
 import 'package:getx_clean_archi/features/product/domain/usecases/get_products.dart';
 import 'package:getx_clean_archi/features/product/domain/usecases/remove_product.dart';
 import 'package:getx_clean_archi/features/product/presentation/controllers/home_controller.dart';
@@ -25,6 +26,7 @@ final addProductUC = AddProduct(productRepo);
 final removeProductUC = RemoveProduct(productRepo);
 final editProductUC = EditProduct(productRepo);
 final getProductsUC = GetProducts(productRepo);
+final filterProductUC = FilterProduct();
 
 /// ================= CONTROLLERS =================
 Get.put(LoginController(loginUC));
@@ -32,6 +34,7 @@ Get.put(NavController());
 
 Get.put(
 HomeController(
+  filterProductUC:  filterProductUC,
 addProductUC: addProductUC,
 removeProductUC: removeProductUC,
 editProductUC: editProductUC,

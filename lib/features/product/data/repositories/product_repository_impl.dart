@@ -2,22 +2,51 @@ import 'package:getx_clean_archi/features/product/domain/entities/product.dart';
 import 'package:getx_clean_archi/features/product/domain/repository/product_repository.dart';
 
 class ProductRepositoryImpl implements ProductRepository {
-  
-  final List<Product> products = [Product("giày hôi", 1000000, 100),
- Product("giày thơm", 10000000, 50),
-   Product("giày da", 999999, 70),
-   Product("giày bata ", 100000, 1000)];
+  final List<Product> products = [
+    Product(
+      "giày hôi",
+      1000000,
+      100,
+      "https://giaycaosmartmen.com/wp-content/uploads/2020/11/cach-khu-mui-hoi-giay.jpg",
+      "shoes",
+    ),
+    Product(
+      "giày thơm",
+      10000000,
+      50,
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDB3Mm28qILpOVt04sMLqCelbCTrMz_NVVtLzUCA5utw&s=10",
+      "shoes",
+    ),
+    Product(
+      "giày da",
+      999999,
+      70,
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQJHeq7eSZBbYUC4HXuf6vCBA5r7rWUChlB6Zv5Bm-Kg&s=10",
+      "shoes",
+    ),
+    Product(
+      "áo thun",
+      200000,
+      20,
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRlskcUqAFgFigNB4yiPu6u99EYCN2WFJa1uKM67RYWew&s=10",
+      "clothes",
+    ),
+    Product(
+      "iphone",
+      20000000,
+      5,
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRlK4ahPBXYOMtD3MooJ7TQlg5h5yKP7LKvCPD44Wuuvg&s=10",
+      "electronics",
+    ),
+  ];
 
-  List<Product> _findProduct = [];
   @override
   List<Product> getProducts() {
- 
-    return products;
+    return List.from(products); // 👈 tránh mutate trực tiếp
   }
 
   @override
   void addProduct(Product product) {
-    // TODO: implement addProduct
     products.add(product);
   }
 
@@ -29,22 +58,17 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  void filterProduct(int price) {
-    // TODO: implement filterProduct
+  void removeProduct(int index) {
+    if (index >= 0 && index < products.length) {
+      products.removeAt(index);
+    }
   }
 
+  /// ❌ KHÔNG dùng nữa (để trống hoặc xóa khỏi interface)
   @override
-  void findProduct(String name) {
-    // TODO: implement findProduct
-    _findProduct =
-        products
-            .where((p) => p.name.toLowerCase().contains(name.toLowerCase()))
-            .toList();
-  }
+  void filterProduct(int price) {}
 
+  /// ❌ KHÔNG cần thiết (search đã làm ở UseCase)
   @override
-  void removeProduct(int id) {
-    // TODO: implement removeProduct
-    products.removeAt(id);
-  }
+  void findProduct(String name) {}
 }
