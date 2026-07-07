@@ -1,6 +1,15 @@
-class Product{
-  String name;
-  int quan;
-  int price;
-  Product(this.name,this.price,this.quan);
+class Product {
+  final String name;
+  final double price;
+  final double quantity;
+  final String imageUrl;
+  final String category;
+
+  Product(
+    this.name,
+    this.price,
+    this.quantity,
+    this.imageUrl,
+    this.category,
+  );
 }

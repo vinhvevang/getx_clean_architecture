@@ -1,45 +1,66 @@
-
-
 import 'package:getx_clean_archi/features/product/domain/entities/product.dart';
 import 'package:getx_clean_archi/features/product/domain/repository/product_repository.dart';
 
-class ProductRepositoryImpl  implements ProductRepository{
-   List<Product> _products = [];
-   List<Product> _findProduct = [];
+class ProductRepositoryImpl implements ProductRepository {
+  final List<Product> _products = [
+    Product(
+      "giày hôi",
+      1000000,
+      100,
+      "https://giaycaosmartmen.com/wp-content/uploads/2020/11/cach-khu-mui-hoi-giay.jpg",
+      "shoes",
+    ),
+    Product(
+      "giày thơm",
+      10000000,
+      50,
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDB3Mm28qILpOVt04sMLqCelbCTrMz_NVVtLzUCA5utw&s=10",
+      "shoes",
+    ),
+    Product(
+      "giày da",
+      999999,
+      70,
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQJHeq7eSZBbYUC4HXuf6vCBA5r7rWUChlB6Zv5Bm-Kg&s=10",
+      "shoes",
+    ),
+    Product(
+      "áo thun",
+      200000,
+      20,
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRlskcUqAFgFigNB4yiPu6u99EYCN2WFJa1uKM67RYWew&s=10",
+      "clothes",
+    ),
+    Product(
+      "iphone",
+      20000000,
+      5,
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRlK4ahPBXYOMtD3MooJ7TQlg5h5yKP7LKvCPD44Wuuvg&s=10",
+      "electronics",
+    ),
+  ];
+
   @override
-  List<Product> getProducts(){
-      return _products;
-  } 
-   
-  
+  List<Product> getProducts() {
+    return List.from(_products); // tránh mutate trực tiếp danh sách gốc
+  }
 
   @override
   void addProduct(Product product) {
-    // TODO: implement addProduct
     _products.add(product);
   }
-  
+
   @override
-  void editProduct(Product product, int i) {
-    // TODO: implement editProduct
-    _products[i] = product;
-  }
-  
-  @override
-  void filterProduct(int price) {
-    // TODO: implement filterProduct
-  }
-  
-  @override
-  void findProduct(String name) {
-    // TODO: implement findProduct
-   _findProduct = _products.where((p)=> p.name.toLowerCase().contains(name.toLowerCase())).toList();
-  }
-  
-  @override
-  void removeProduct(int id) {
-    // TODO: implement removeProduct
-    _products.removeAt(id);
+  void editProduct(Product product, int index) {
+    if (index >= 0 && index < _products.length) {
+      _products[index] = product;
+    }
   }
 
+  @override
+  void removeProduct(int index) {
+    if (index >= 0 && index < _products.length) {
+      _products.removeAt(index);
+    }
+  }
 }

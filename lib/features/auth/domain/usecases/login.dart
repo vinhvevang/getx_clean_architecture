@@ -1,4 +1,3 @@
-
 import 'package:getx_clean_archi/features/auth/domain/repository/auth_repository.dart';
 
 class Login {
@@ -6,7 +5,7 @@ class Login {
 
   Login(this.repository);
 
-  bool call(int tax, String username, String password) {
-    return repository.login(tax, username, password);
+  bool call(int taxCode, String username, String password) {
+    return repository.login(taxCode, username, password);
   }
 }

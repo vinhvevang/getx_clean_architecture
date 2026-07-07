@@ -1,17 +1,27 @@
-
+import 'package:getx_clean_archi/core/constant/category.dart';
 import 'package:getx_clean_archi/features/product/domain/entities/product.dart';
-import 'package:getx_clean_archi/features/product/domain/repository/product_repository.dart';
 
 class FilterProduct {
-  final ProductRepository repository;
+  List<Product> call(
+    List<Product> products, {
+    int? minPrice,
+    int? maxPrice,
+    String? keyword,
+    Category? category,
+  }) {
+    return products.where((p) {
+      final matchKeyword = keyword == null || keyword.isEmpty
+          ? true
+          : p.name.toLowerCase().contains(keyword.toLowerCase());
 
-  FilterProduct(this.repository);
+      final matchMin = minPrice == null || p.price >= minPrice;
+      final matchMax = maxPrice == null || p.price <= maxPrice;
 
-  List<Product> call({int? minPrice, int? maxPrice}) {
-    return repository.getProducts().where((p) {
-      final matchesMin = minPrice == null || p.price >= minPrice;
-      final matchesMax = maxPrice == null || p.price <= maxPrice;
-      return matchesMin && matchesMax;
+      final matchCategory = category == null || category == Category.all
+          ? true
+          : p.category == category.name; // lưu dạng string
+
+      return matchKeyword && matchMin && matchMax && matchCategory;
     }).toList();
   }
 }

@@ -1,67 +1,197 @@
-
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get/get_state_manager/src/simple/get_controllers.dart';
+import 'package:getx_clean_archi/core/constant/category.dart';
+import 'package:getx_clean_archi/core/widgets/confirm_dialog.dart';
 import 'package:getx_clean_archi/features/product/domain/entities/product.dart';
 import 'package:getx_clean_archi/features/product/domain/usecases/add_product.dart';
 import 'package:getx_clean_archi/features/product/domain/usecases/edit_product.dart';
 import 'package:getx_clean_archi/features/product/domain/usecases/filtered_product.dart';
-import 'package:getx_clean_archi/features/product/domain/usecases/find_product.dart';
 import 'package:getx_clean_archi/features/product/domain/usecases/get_products.dart';
 import 'package:getx_clean_archi/features/product/domain/usecases/remove_product.dart';
+import 'package:getx_clean_archi/features/product/presentation/controllers/product_filter_controller.dart';
+import 'package:getx_clean_archi/features/product/presentation/controllers/product_form_controller.dart';
+import 'package:getx_clean_archi/features/product/presentation/pages/widgets/product_filter_dialog.dart';
+import 'package:getx_clean_archi/features/product/presentation/pages/widgets/product_form_dialog.dart';
 
 class HomeController extends GetxController {
-  final AddProduct    addProductUC;
+  final AddProduct addProductUC;
   final RemoveProduct removeProductUC;
-  final EditProduct   editProductUC;
-  final FindProduct   findProductUC;
-  final GetProducts   getProductsUC;
+  final EditProduct editProductUC;
+  final GetProducts getProductsUC;
   final FilterProduct filterProductUC;
 
   HomeController({
+    required this.filterProductUC,
     required this.addProductUC,
     required this.removeProductUC,
     required this.editProductUC,
-    required this.findProductUC,
     required this.getProductsUC,
-    required this.filterProductUC,
   });
 
-  // Danh sách reactive
-  final products         = <Product>[].obs;
+  /// Ô tìm kiếm - SearchController (Flutter, kế thừa TextEditingController)
+  /// để dùng được với SearchAnchor.bar ở HomePage, có gợi ý tên sản phẩm khi
+  /// gõ. Đọc trực tiếp searchController.text lúc lọc thay vì lưu thêm một
+  /// biến "keyword" riêng dễ bị lệch với nội dung thật trên ô nhập.
+  final searchController = SearchController();
+
+  /// STATE
+  final allProducts = <Product>[].obs;
   final filteredProducts = <Product>[].obs;
+  final hasActiveFilter = false.obs;
 
-  String _keyword  = '';
-  int?   _minPrice;
-  int?   _maxPrice;
+  final appliedCategory = Category.all.obs;
+  final appliedMinPrice = Rx<double?>(null);
+  final appliedMaxPrice = Rx<double?>(null);
 
-  // Áp dụng cả tìm kiếm lẫn lọc giá
-  void _applyFilters() {
-    filteredProducts.assignAll(
-      getProductsUC().where((p) {
-        final matchName = p.name.toLowerCase().contains(_keyword.toLowerCase());
-        final matchMin  = _minPrice == null || p.price >= _minPrice!;
-        final matchMax  = _maxPrice == null || p.price <= _maxPrice!;
-        return matchName && matchMin && matchMax;
-      }).toList(),
+  /// Lịch sử tìm kiếm gần đây (mới nhất ở đầu danh sách) - hiện trong overlay
+  /// của SearchAnchor khi ô tìm kiếm đang rỗng, thay vì gợi ý sản phẩm.
+  static const _maxRecentSearches = 8;
+  final recentSearches = <String>[].obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    _load();
+  }
+
+  @override
+  void onClose() {
+    searchController.dispose();
+    super.onClose();
+  }
+
+  void _load() {
+    allProducts.assignAll(getProductsUC());
+    _applyFilter();
+  }
+
+  /// ================= TÌM KIẾM & LỌC =================
+  void onSearchChanged(String _) => _applyFilter();
+
+  /// Ghi 1 từ khóa vào lịch sử tìm kiếm gần đây. Chỉ gọi khi người dùng THẬT
+  /// SỰ chốt một lượt tìm kiếm (nhấn Enter, hoặc chọn 1 gợi ý) - không gọi
+  /// theo từng ký tự gõ dở, nếu không lịch sử sẽ đầy các chuỗi cụt vô nghĩa.
+  void commitSearch(String keyword) {
+    final trimmed = keyword.trim();
+    if (trimmed.isEmpty) return;
+
+    // Bỏ bản ghi cũ (không phân biệt hoa/thường) rồi đưa bản mới lên đầu,
+    // để từ khóa vừa tìm luôn nổi lên trên mà không bị lặp trong danh sách.
+    recentSearches.removeWhere((s) => s.toLowerCase() == trimmed.toLowerCase());
+    recentSearches.insert(0, trimmed);
+
+    if (recentSearches.length > _maxRecentSearches) {
+      recentSearches.removeRange(_maxRecentSearches, recentSearches.length);
+    }
+  }
+
+  void removeRecentSearch(String term) {
+    recentSearches.remove(term);
+  }
+
+  void _applyFilter() {
+    final keyword = searchController.text.trim();
+
+    final result = filterProductUC(
+      allProducts,
+      keyword: keyword,
+      minPrice: appliedMinPrice.value?.toInt(),
+      maxPrice: appliedMaxPrice.value?.toInt(),
+      category: appliedCategory.value,
     );
+
+    filteredProducts.assignAll(result);
+
+    hasActiveFilter.value =
+        keyword.isNotEmpty ||
+        appliedMinPrice.value != null ||
+        appliedMaxPrice.value != null ||
+        appliedCategory.value != Category.all;
   }
 
-  void _refreshAll() {
-    products.assignAll(getProductsUC());
-    _applyFilters();
+  /// Mở dialog bộ lọc. Chip danh mục trong dialog tick ngay khi chạm (Rx),
+  /// nhưng [filteredProducts] chỉ thật sự đổi khi người dùng bấm "Áp dụng"
+  /// hoặc "Xóa" - tức là khi dialog trả kết quả về đây.
+  Future<void> openFilterDialog() async {
+    final filterController = ProductFilterController(
+      initialCategory: appliedCategory.value,
+      initialMinPrice: appliedMinPrice.value,
+      initialMaxPrice: appliedMaxPrice.value,
+    );
+
+    final result = await Get.dialog<ProductFilterResult>(
+      ProductFilterDialog(controller: filterController),
+    );
+
+    if (result == null) return; // đóng bằng back/tap ra ngoài -> giữ nguyên
+
+    if (result.cleared) {
+      searchController.clear();
+      appliedCategory.value = Category.all;
+      appliedMinPrice.value = null;
+      appliedMaxPrice.value = null;
+    } else {
+      appliedCategory.value = result.category;
+      appliedMinPrice.value = result.minPrice;
+      appliedMaxPrice.value = result.maxPrice;
+    }
+
+    _applyFilter();
   }
 
-  void add(Product p)           { addProductUC(p);     _refreshAll(); }
-  void remove(int index)        { removeProductUC(index); _refreshAll(); }
-  void edit(Product p, int idx) { editProductUC(p, idx); _refreshAll(); }
-
-  void find(String keyword) {
-    _keyword = keyword;
-    _applyFilters();
+  void removeCategoryFilter() {
+    appliedCategory.value = Category.all;
+    _applyFilter();
   }
 
-  void filter({int? minPrice, int? maxPrice}) {
-    _minPrice = minPrice;
-    _maxPrice = maxPrice;
-    _applyFilters();
+  void removePriceFilter() {
+    appliedMinPrice.value = null;
+    appliedMaxPrice.value = null;
+    _applyFilter();
+  }
+
+  /// ================= CRUD SẢN PHẨM =================
+  /// [ProductFormController] được tạo trực tiếp (không qua Get.put) và truyền
+  /// thẳng vào dialog qua constructor -> mỗi lần mở luôn là form trắng/sạch
+  /// hoàn toàn, và không phụ thuộc GetX tìm-theo-tên nên không thể "not found".
+  Future<void> openAddDialog() async {
+    final formController = ProductFormController();
+
+    final product = await Get.dialog<Product>(
+      ProductFormDialog(controller: formController),
+    );
+
+    if (product != null) {
+      addProductUC(product);
+      _load();
+    }
+  }
+
+  Future<void> openEditDialog(Product product, int index) async {
+    final formController = ProductFormController(initial: product);
+
+    final updated = await Get.dialog<Product>(
+      ProductFormDialog(controller: formController),
+    );
+
+    if (updated != null) {
+      editProductUC(updated, index);
+      _load();
+    }
+  }
+
+  Future<void> confirmAndRemove(int index) async {
+    final confirmed = await showConfirmDialog(
+      title: 'Xác nhận',
+      message: 'Bạn có chắc muốn xóa không?',
+      confirmLabel: 'Xóa',
+      isDestructive: true,
+    );
+
+    if (confirmed) {
+      removeProductUC(index);
+      _load();
+    }
   }
 }
