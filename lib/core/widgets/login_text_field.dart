@@ -45,17 +45,8 @@ class LoginTextField extends StatelessWidget {
 
           onChanged: (_) => loginController.onFieldChanged(),
 
-          textInputAction:
-              nextFocus != null ? TextInputAction.next : TextInputAction.done,
-
-          onEditingComplete: () {
-            if (nextFocus != null) {
-              FocusScope.of(context).requestFocus(nextFocus);
-            } else {
-              FocusScope.of(context).unfocus();
-              loginController.submit();
-            }
-          },
+          nextFocus: nextFocus,
+          onSubmit: nextFocus == null ? loginController.submit : null,
 
           suffixIcon: isPassword
               ? IconButton(

@@ -75,9 +75,13 @@ class LoginPage extends GetView<LoginController> {
                           const SizedBox(height: 24),
 
                           Obx(
-                            () => SizedBox(
+                            () => Container(
                               width: double.infinity,
                               height: 55,
+                              decoration: BoxDecoration(
+                                color: Color(0xFFF24E1E),
+                                borderRadius: BorderRadius.circular(3)
+                              ),
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColors.primary,
@@ -93,7 +97,7 @@ class LoginPage extends GetView<LoginController> {
                                         )
                                         : const Text(
                                           'Đăng nhập',
-                                          style: TextStyle(color: Colors.white),
+                                          style: TextStyle(color: Colors.white,fontSize: 20),
                                         ),
                               ),
                             ),

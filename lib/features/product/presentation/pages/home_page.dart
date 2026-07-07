@@ -16,7 +16,7 @@ class HomePage extends GetView<HomeController> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppColors.primary,
         onPressed: controller.openAddDialog,
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.add,color: Colors.white,size: 33,),
       ),
       body: Column(
         children: [

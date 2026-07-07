@@ -28,9 +28,9 @@ class ProductFilterResult {
 /// phẩm thật sự chỉ được cập nhật khi HomeController nhận [ProductFilterResult]
 /// lúc dialog đóng bằng nút "Áp dụng" - xem HomeController.openFilterDialog.
 ///
-/// Là object Dart thường (không qua Get.put/Get.find) - lý do xem chú thích
-/// trong ProductFormController.
-class ProductFilterController extends GetxController {
+/// Là object Dart thường (không qua Get.put/Get.find, không tự dispose) -
+/// lý do xem chú thích trong ProductFormController.
+class ProductFilterController {
   ProductFilterController({
     required Category initialCategory,
     double? initialMinPrice,
@@ -95,16 +95,4 @@ class ProductFilterController extends GetxController {
         ? value.toInt().toString()
         : value.toString();
   }
-
-  /// Gọi thủ công khi đóng dialog (xem HomeController).
-  void dispose() {
-    minPriceController.dispose();
-    maxPriceController.dispose();
-  }
-  @override
-void onClose() {
-  minPriceController.dispose();
-  maxPriceController.dispose();
-  super.onClose();
-}
 }

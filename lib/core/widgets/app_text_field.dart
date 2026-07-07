@@ -22,6 +22,15 @@ class AppTextFormField extends StatelessWidget {
   final TextInputAction? textInputAction;
   final Function(String)? onChanged;
 
+  /// Nếu có: nhấn Enter/Next sẽ tự chuyển focus sang field này, không cần tự
+  /// viết FocusScope.of(context).requestFocus(...) ở nơi gọi nữa.
+  final FocusNode? nextFocus;
+
+  /// Nếu có (và [nextFocus] không có - tức đây là field cuối cùng): nhấn
+  /// Enter/Done sẽ ẩn bàn phím rồi gọi callback này. Dùng để "nhập xong field
+  /// cuối, nhấn Enter là submit luôn" mà không phải lặp logic ở từng dialog.
+  final VoidCallback? onSubmit;
+
   const AppTextFormField({
     super.key,
     required this.controller,
@@ -38,14 +47,32 @@ class AppTextFormField extends StatelessWidget {
     this.focusNode,
     this.textInputAction,
     this.onChanged,
+    this.nextFocus,
+    this.onSubmit,
   });
 
   @override
   Widget build(BuildContext context) {
+    final effectiveTextInputAction =
+        textInputAction ??
+        (nextFocus != null
+            ? TextInputAction.next
+            : (onSubmit != null ? TextInputAction.done : null));
+
+    void handleEditingComplete() {
+      if (nextFocus != null) {
+        FocusScope.of(context).requestFocus(nextFocus);
+      } else if (onSubmit != null) {
+        FocusScope.of(context).unfocus();
+        onSubmit!();
+      }
+      onEditingComplete?.call();
+    }
+
     return TextFormField(
       controller: controller,
       focusNode: focusNode,
-      textInputAction: textInputAction,
+      textInputAction: effectiveTextInputAction,
       obscureText: obscureText,
       keyboardType: keyboardType,
       inputFormatters: inputFormatters,
@@ -55,7 +82,10 @@ class AppTextFormField extends StatelessWidget {
           : AutovalidateMode.disabled,
 
       onChanged: onChanged,
-      onEditingComplete: onEditingComplete,
+      onEditingComplete:
+          (nextFocus != null || onSubmit != null || onEditingComplete != null)
+          ? handleEditingComplete
+          : null,
 
       validator: (value) {
         if (isRequired && (value == null || value.isEmpty)) {

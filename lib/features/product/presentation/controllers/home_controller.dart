@@ -86,19 +86,17 @@ class HomeController extends GetxController {
   /// nhưng [filteredProducts] chỉ thật sự đổi khi người dùng bấm "Áp dụng"
   /// hoặc "Xóa" - tức là khi dialog trả kết quả về đây.
   Future<void> openFilterDialog() async {
-    Get.put(
-      ProductFilterController(
-        initialCategory: appliedCategory.value,
-        initialMinPrice: appliedMinPrice.value,
-        initialMaxPrice: appliedMaxPrice.value,
-      ),
+    final filterController = ProductFilterController(
+      initialCategory: appliedCategory.value,
+      initialMinPrice: appliedMinPrice.value,
+      initialMaxPrice: appliedMaxPrice.value,
     );
 
     final result = await Get.dialog<ProductFilterResult>(
-      const ProductFilterDialog(),
+      ProductFilterDialog(controller: filterController),
     );
 
-    if (result == null) return;
+    if (result == null) return; // đóng bằng back/tap ra ngoài -> giữ nguyên
 
     if (result.cleared) {
       searchController.clear();
@@ -112,13 +110,6 @@ class HomeController extends GetxController {
     }
 
     _applyFilter();
-
-    /// ✅ Delay delete (QUAN TRỌNG)
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (Get.isRegistered<ProductFilterController>()) {
-        Get.delete<ProductFilterController>();
-      }
-    });
   }
 
   void removeCategoryFilter() {
@@ -137,36 +128,29 @@ class HomeController extends GetxController {
   /// thẳng vào dialog qua constructor -> mỗi lần mở luôn là form trắng/sạch
   /// hoàn toàn, và không phụ thuộc GetX tìm-theo-tên nên không thể "not found".
   Future<void> openAddDialog() async {
-    Get.put(ProductFormController());
+    final formController = ProductFormController();
 
-    final result = await Get.dialog<Product>(const ProductFormDialog());
+    final product = await Get.dialog<Product>(
+      ProductFormDialog(controller: formController),
+    );
 
-    if (result != null) {
-      addProductUC(result);
+    if (product != null) {
+      addProductUC(product);
       _load();
     }
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Get.delete<ProductFormController>();
-    });
   }
 
   Future<void> openEditDialog(Product product, int index) async {
-    Get.put(ProductFormController(initial: product));
+    final formController = ProductFormController(initial: product);
 
-    final result = await Get.dialog<Product>(const ProductFormDialog());
+    final updated = await Get.dialog<Product>(
+      ProductFormDialog(controller: formController),
+    );
 
-    if (result != null) {
-      editProductUC(result, index);
+    if (updated != null) {
+      editProductUC(updated, index);
       _load();
     }
-
-    // ✅ Delay để tránh dispose khi dialog chưa chết hẳn
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (Get.isRegistered<ProductFormController>()) {
-        Get.delete<ProductFormController>();
-      }
-    });
   }
 
   Future<void> confirmAndRemove(int index) async {
