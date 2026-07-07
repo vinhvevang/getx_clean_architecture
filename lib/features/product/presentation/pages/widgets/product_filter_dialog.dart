@@ -97,16 +97,13 @@ class ProductFilterDialog extends StatelessWidget {
           child: const Text('Xóa'),
         ),
         ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Color(0xFFF24E1E)
-          ),
           onPressed: () {
             final result = controller.apply();
             if (result != null) {
               Get.back(result: result);
             }
           },
-          child: const Text('Áp dụng',style: TextStyle(color: Colors.white),),
+          child: const Text('Áp dụng'),
         ),
       ],
     );

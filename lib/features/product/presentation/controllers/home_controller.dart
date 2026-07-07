@@ -29,9 +29,11 @@ class HomeController extends GetxController {
     required this.getProductsUC,
   });
 
-  /// Ô tìm kiếm - đọc trực tiếp searchController.text lúc lọc thay vì lưu
-  /// thêm một biến "keyword" riêng dễ bị lệch với nội dung thật trên ô nhập.
-  final searchController = TextEditingController();
+  /// Ô tìm kiếm - SearchController (Flutter, kế thừa TextEditingController)
+  /// để dùng được với SearchAnchor.bar ở HomePage, có gợi ý tên sản phẩm khi
+  /// gõ. Đọc trực tiếp searchController.text lúc lọc thay vì lưu thêm một
+  /// biến "keyword" riêng dễ bị lệch với nội dung thật trên ô nhập.
+  final searchController = SearchController();
 
   /// STATE
   final allProducts = <Product>[].obs;
@@ -41,6 +43,11 @@ class HomeController extends GetxController {
   final appliedCategory = Category.all.obs;
   final appliedMinPrice = Rx<double?>(null);
   final appliedMaxPrice = Rx<double?>(null);
+
+  /// Lịch sử tìm kiếm gần đây (mới nhất ở đầu danh sách) - hiện trong overlay
+  /// của SearchAnchor khi ô tìm kiếm đang rỗng, thay vì gợi ý sản phẩm.
+  static const _maxRecentSearches = 8;
+  final recentSearches = <String>[].obs;
 
   @override
   void onInit() {
@@ -61,6 +68,27 @@ class HomeController extends GetxController {
 
   /// ================= TÌM KIẾM & LỌC =================
   void onSearchChanged(String _) => _applyFilter();
+
+  /// Ghi 1 từ khóa vào lịch sử tìm kiếm gần đây. Chỉ gọi khi người dùng THẬT
+  /// SỰ chốt một lượt tìm kiếm (nhấn Enter, hoặc chọn 1 gợi ý) - không gọi
+  /// theo từng ký tự gõ dở, nếu không lịch sử sẽ đầy các chuỗi cụt vô nghĩa.
+  void commitSearch(String keyword) {
+    final trimmed = keyword.trim();
+    if (trimmed.isEmpty) return;
+
+    // Bỏ bản ghi cũ (không phân biệt hoa/thường) rồi đưa bản mới lên đầu,
+    // để từ khóa vừa tìm luôn nổi lên trên mà không bị lặp trong danh sách.
+    recentSearches.removeWhere((s) => s.toLowerCase() == trimmed.toLowerCase());
+    recentSearches.insert(0, trimmed);
+
+    if (recentSearches.length > _maxRecentSearches) {
+      recentSearches.removeRange(_maxRecentSearches, recentSearches.length);
+    }
+  }
+
+  void removeRecentSearch(String term) {
+    recentSearches.remove(term);
+  }
 
   void _applyFilter() {
     final keyword = searchController.text.trim();

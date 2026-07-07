@@ -126,7 +126,7 @@ class ProductFormDialog extends StatelessWidget {
         ElevatedButton(
           style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
           onPressed: _handleSubmit,
-          child: Text(controller.isEditing ? 'Lưu' : 'Thêm'),
+          child: Text(controller.isEditing ? 'Lưu' : 'Thêm',style: TextStyle(color: Colors.white),),
         ),
       ],
     );
